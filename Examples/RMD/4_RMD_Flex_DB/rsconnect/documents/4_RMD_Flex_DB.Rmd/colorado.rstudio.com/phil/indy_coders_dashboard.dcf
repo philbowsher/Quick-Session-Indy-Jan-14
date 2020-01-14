@@ -1,0 +1,12 @@
+name: indy_coders_dashboard
+title: Indy Coders Dashboard
+username: phil
+account: phil
+server: colorado.rstudio.com
+hostUrl: http://colorado.rstudio.com:3939/__api__
+appId: 1040
+bundleId: 4650
+url: http://colorado.rstudio.com:3939/content/1040/
+when: 1523969167.6911
+asMultiple: FALSE
+asStatic: TRUE

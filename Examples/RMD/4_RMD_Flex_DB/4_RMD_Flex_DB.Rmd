@@ -1,0 +1,98 @@
+---
+title: "`r params$dynamictitle`"
+date: "`r params$reportdate`"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+    logo: "logo.png"
+    favicon: "logo.png"
+params:
+  symbol1: LLY
+  reportdate: !r Sys.Date()
+  dynamictitle: "Indy Coders Dashboard"
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+
+library(tidyverse)
+library(magrittr)
+library(stringr)
+
+# for 1
+library(leaflet)
+
+#for 2
+library(rbokeh)
+
+#for 3, 4
+library(quantmod)
+library(dygraphs)
+```
+
+Column {data-width=350}
+-----------------------------------------------------------------------
+
+### Chart A
+
+```{r}
+
+starbucks <- read_csv("data.csv")
+
+
+starbucks_IN <- starbucks %>%
+  filter(Country== 'US', State=='IN')%>% 
+  select(Brand, `Store Number`, `Ownership Type`, City,	State,	Zip, Country, Coordinates,	Latitude,	Longitude, Name)
+
+
+leaflet() %>% addTiles() %>% setView(-86.164367, 39.764500, zoom = 12) %>% 
+
+addMarkers(data = starbucks_IN, lat = ~ Latitude, lng = ~ Longitude, popup = starbucks_IN$Name) %>%
+  addPopups(-86.164367, 39.764500, 'The <b> Indiana Convention Center</b>')
+```
+
+### Chart B
+
+```{r}
+
+bike <- read.csv("Bike_Share_Stations.csv")
+bike_small <- bike %>% select(LATITUDE, LONGITUDE, NUMBER_OF_DOCKS, ADDRESS)
+
+leaflet() %>% addTiles() %>% setView(-86.164367, 39.764500, zoom = 13) %>% 
+  addCircleMarkers(data = bike_small, lat = ~ LATITUDE, lng = ~ LONGITUDE, popup = bike_small$ADDRESS) %>%
+  addPopups(-86.164367, 39.764500, 'The <b> Indiana Convention Center</b>')
+
+
+
+```
+
+Column {data-width=350}
+-----------------------------------------------------------------------
+
+### Chart C
+
+```{r include = FALSE}
+getSymbols("INDI918URN", src = "FRED")
+```
+
+```{r}
+names(INDI918URN) = "rate"
+dygraph(INDI918URN, main = "Unemployment Rate in Indianapolis-Carmel-Anderson, IN")
+```
+
+### Chart D
+
+```{r include = FALSE}
+stock1 <- getSymbols(params$symbol1, auto.assign = FALSE,
+                    from = "2014-01-01", end = Sys.Date())
+
+colnames(stock1) <- c("Open", "High", "Low", "Close", "Volume", "Adjusted")
+
+name1 <- params$symbol1
+```
+
+```{r}
+dygraph(stock1[,2:4], group = "stocks") %>% 
+  dySeries(c("Low", "Close", "High"), label = name1)
+```
